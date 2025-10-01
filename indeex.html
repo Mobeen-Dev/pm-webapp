@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Custom Ctrl+F Example</title>
+  <style>
+    .highlight {
+      background-color: yellow;
+    }
+  </style>
+</head>
+<body>
+
+  <input type="text" id="searchInput" placeholder="Enter text to find">
+  <button onclick="customFind()">Find</button>
+
+  <p id="content">
+    This is an example paragraph. Try searching for the word "example" or any other word in this paragraph.
+  </p>
+
+  <script>
+    function customFind() {
+      // Remove previous highlights
+      const contentElement = document.getElementById('content');
+      const searchTerm = document.getElementById('searchInput').value;
+      const originalText = contentElement.textContent;
+
+      contentElement.innerHTML = originalText;
+
+      if (!searchTerm) return;
+
+      const regex = new RegExp(`(${searchTerm})`, 'gi');
+      const newHTML = contentElement.innerHTML.replace(regex, '<span class="highlight">$1</span>');
+
+      contentElement.innerHTML = newHTML;
+
+      // Scroll to first match
+      const firstMatch = document.querySelector('.highlight');
+      if (firstMatch) {
+        firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  </script>
+
+</body>
+</html>
