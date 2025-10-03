@@ -14,10 +14,10 @@ function PdfViewer() {
   const [searchParams] = useSearchParams();
 
   // ✅ Convert query params into correct types
-  const pdfId = parseInt(searchParams.get("pdfId") || "1", 10);
-  const initialPageNum = parseInt(searchParams.get("pageNum") || "112", 10);
+  const pdfId = parseInt(searchParams.get("pdfId") || "0", 10);
+  const initialPageNum = parseInt(searchParams.get("pageNum") || "1", 10);
   const searchText =
-    searchParams.get("searchText") || "Transaction Processing or Analytics?";
+    searchParams.get("searchText") || "";
   console.log("searchText")
   console.log(searchText)
   const [pageNumber, setPageNumber] = useState(initialPageNum);
@@ -94,7 +94,8 @@ function PdfViewer() {
   }
 
   // ✅ Choose PDF file by id
-  let pdf = "http://localhost:5173/book.pdf";
+  let pdf = "http://localhost:5173/book0.pdf";
+  if (pdfId === 1) pdf = "http://localhost:5173/book1.pdf";
   if (pdfId === 2) pdf = "http://localhost:5173/book2.pdf";
   if (pdfId === 3) pdf = "http://localhost:5173/book3.pdf";
 
