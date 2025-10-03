@@ -12,13 +12,13 @@ export default function BookComparison() {
       author: 'James Clear',
       color: 'blue',
       overview: 'A comprehensive guide to building good habits and breaking bad ones through small, incremental changes that compound over time.',
-      commonPoints: [
+      similarPoints: [
         'Systems over goals',
         'Identity-based habits',
         'The 1% improvement principle',
         'Environment design'
       ],
-      applications: [
+      distinctPoints: [
         'Start with 2-minute habits',
         'Use habit stacking',
         'Make good habits obvious and easy',
@@ -31,13 +31,13 @@ export default function BookComparison() {
       author: 'Cal Newport',
       color: 'purple',
       overview: 'Explores the power of focused concentration and provides strategies to cultivate the ability to focus without distraction on cognitively demanding tasks.',
-      commonPoints: [
+      similarPoints: [
         'Eliminate distractions',
         'Deliberate practice',
         'Time blocking',
         'Value of solitude'
       ],
-      applications: [
+      distinctPoints: [
         'Schedule deep work blocks',
         'Create shutdown rituals',
         'Embrace boredom',
@@ -50,25 +50,25 @@ export default function BookComparison() {
       author: 'Eckhart Tolle',
       color: 'emerald',
       overview: 'A spiritual guide that emphasizes living in the present moment and freeing oneself from the mind\'s constant chatter and anxiety about past and future.',
-      commonPoints: [
+      similarPoints: [
         'Present moment awareness',
         'Observing thoughts',
         'Acceptance of what is',
         'Inner stillness'
       ],
-      applications: [
+      distinctPoints: [
         'Practice conscious breathing',
         'Watch the thinker within',
         'Accept the present moment',
         'Find inner body awareness'
       ]
-    }
+    },
   ];
 
   const sections = [
     { id: 'overview', label: 'Overview' },
-    { id: 'commonPoints', label: 'Key Points' },
-    { id: 'applications', label: 'Applications' }
+    { id: 'similarPoints', label: 'Similarities' },
+    { id: 'distinctPoints', label: 'Unique Points' }
   ];
 
   const colorClasses = {
@@ -112,7 +112,7 @@ export default function BookComparison() {
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
             <input
               type="text"
-              placeholder="Search books or authors..."
+              placeholder="Search topic or sub-topic..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-10 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -175,13 +175,13 @@ export default function BookComparison() {
                   </div>
                 )}
 
-                {activeSection === 'commonPoints' && (
+                {activeSection === 'similarPoints' && (
                   <div>
                     <h3 className={`font-semibold ${colorClasses[book.color].text} mb-3 text-lg`}>
                       Key Points
                     </h3>
                     <ul className="space-y-2">
-                      {book.commonPoints.map((point, idx) => (
+                      {book.similarPoints.map((point, idx) => (
                         <li key={idx} className="flex items-start">
                           <span className={`${colorClasses[book.color].accent} w-2 h-2 rounded-full mt-2 mr-3 flex-shrink-0`}></span>
                           <span className="text-slate-700">{point}</span>
@@ -191,13 +191,13 @@ export default function BookComparison() {
                   </div>
                 )}
 
-                {activeSection === 'applications' && (
+                {activeSection === 'distinctPoints' && (
                   <div>
                     <h3 className={`font-semibold ${colorClasses[book.color].text} mb-3 text-lg`}>
-                      Practical Applications
+                      Practical distinctPoints
                     </h3>
                     <ul className="space-y-2">
-                      {book.applications.map((app, idx) => (
+                      {book.distinctPoints.map((app, idx) => (
                         <li key={idx} className={`${colorClasses[book.color].bg} ${colorClasses[book.color].hover} p-3 rounded-lg border ${colorClasses[book.color].border} transition-colors`}>
                           <span className="text-slate-700">{app}</span>
                         </li>

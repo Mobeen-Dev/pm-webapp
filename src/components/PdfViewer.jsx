@@ -1,14 +1,26 @@
+// /book?pdfId=2&pageNum=50&searchText=Analytics
 import { Document, Page } from "react-pdf";
 import { useState, useEffect, useRef } from "react";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { useSearchParams } from "react-router-dom";
 
-function PdfViewer({ pdfId, pageNum, searchText }) {
-  const [pageNumber, setPageNumber] = useState(1);
+function PdfViewer() {
   const [numPages, setNumPages] = useState(null);
   const [pageWidth, setPageWidth] = useState(window.innerWidth * 0.88);
 
-  const pageRef = useRef(null);
+  const containerRef = useRef(null);
+
+  const [searchParams] = useSearchParams();
+
+  // ✅ Convert query params into correct types
+  const pdfId = parseInt(searchParams.get("pdfId") || "1", 10);
+  const initialPageNum = parseInt(searchParams.get("pageNum") || "112", 10);
+  const searchText =
+    searchParams.get("searchText") || "Transaction Processing or Analytics?";
+  console.log("searchText")
+  console.log(searchText)
+  const [pageNumber, setPageNumber] = useState(initialPageNum);
 
   useEffect(() => {
     function handleResize() {
@@ -22,7 +34,9 @@ function PdfViewer({ pdfId, pageNum, searchText }) {
 
   function onDocumentLoaded({ numPages }) {
     setNumPages(numPages);
-    setPageNumber(pageNum);
+    setPageNumber((prev) =>
+      prev > numPages ? numPages : prev < 1 ? 1 : prev
+    );
   }
 
   function nextPage() {
@@ -33,16 +47,16 @@ function PdfViewer({ pdfId, pageNum, searchText }) {
     setPageNumber((prev) => (prev > 1 ? prev - 1 : prev));
   }
 
-  // Highlight function
+  // ✅ Highlight text in page
   useEffect(() => {
     if (!searchText) return;
 
-    // Wait a little to ensure text layer rendered
     const timeoutId = setTimeout(() => {
-      const textLayer = pageRef.current?.querySelector(".react-pdf__Page__textContent");
+      const textLayer =
+        containerRef.current?.querySelector(".react-pdf__Page__textContent");
       if (!textLayer) return;
 
-      // Remove previous highlights
+      // Clear previous highlights
       const marks = textLayer.querySelectorAll("mark");
       marks.forEach((mark) => {
         const parent = mark.parentNode;
@@ -50,22 +64,36 @@ function PdfViewer({ pdfId, pageNum, searchText }) {
         parent.normalize();
       });
 
-      // Highlight all occurrences of searchText
-      const innerHTML = textLayer.innerHTML;
-      const regex = new RegExp(`(${escapeRegExp(searchText)})`, "gi");
+      // Walk through text nodes and highlight
+      const regex = new RegExp(escapeRegExp(searchText), "gi");
 
-      // Replace matched text with <mark>
-      textLayer.innerHTML = innerHTML.replace(regex, "<mark>$1</mark>");
-    }, 1000); // delay to wait for page rendering
+      function highlightNode(node) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const match = node.nodeValue.match(regex);
+          if (match) {
+            const span = document.createElement("span");
+            span.innerHTML = node.nodeValue.replace(
+              regex,
+              `<mark>$&</mark>`
+            );
+            node.parentNode.replaceChild(span, node);
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          node.childNodes.forEach(highlightNode);
+        }
+      }
+
+      textLayer.childNodes.forEach(highlightNode);
+    }, 2500);
 
     return () => clearTimeout(timeoutId);
   }, [pageNumber, searchText]);
 
-  // Utility to escape special regex chars in search string
   function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 
+  // ✅ Choose PDF file by id
   let pdf = "http://localhost:5173/book.pdf";
   if (pdfId === 2) pdf = "http://localhost:5173/book2.pdf";
   if (pdfId === 3) pdf = "http://localhost:5173/book3.pdf";
@@ -83,24 +111,23 @@ function PdfViewer({ pdfId, pageNum, searchText }) {
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
       }}
     >
-      <Document
-        file={pdf}
-        onLoadSuccess={onDocumentLoaded}
-        loading={<div style={{ padding: 20 }}>Loading PDF...</div>}
-        error={
-          <div style={{ padding: 20, color: "red" }}>Failed to load PDF.</div>
-        }
-      >
-        <Page
-          pageNumber={pageNumber}
-          renderAnnotationLayer={true}
-          renderTextLayer={true}
-          width={pageWidth}
-          loading={<div style={{ padding: 20 }}>Loading page...</div>}
-          inputRef={pageRef} // This is a mistake, react-pdf Page doesn't accept inputRef prop, better use ref directly below
-          ref={pageRef}
-        />
-      </Document>
+      <div ref={containerRef}>
+        <Document
+          file={pdf}
+          onLoadSuccess={onDocumentLoaded}
+          loading={<div style={{ padding: 20 }}>Loading PDF...</div>}
+          error={<div style={{ padding: 20, color: "red" }}>Failed to load PDF.</div>}
+        >
+          <Page
+            pageNumber={pageNumber}
+            renderAnnotationLayer
+            renderTextLayer
+            width={pageWidth}
+            loading={<div style={{ padding: 20 }}>Loading page...</div>}
+          />
+        </Document>
+      </div>
+
       <div
         style={{
           marginTop: 15,
@@ -122,20 +149,13 @@ function PdfViewer({ pdfId, pageNum, searchText }) {
             borderRadius: 4,
             color: "#fff",
             opacity: pageNumber <= 1 ? 0.5 : 1,
-            transition: "background-color 0.3s",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor =
-              pageNumber <= 1 ? "#007bff" : "#0056b3")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "#007bff")
-          }
         >
           ◀ Prev
         </button>
         <span style={{ fontSize: 16 }}>
-          Page <strong>{pageNumber}</strong> of <strong>{numPages || "?"}</strong>
+          Page <strong>{pageNumber}</strong> of{" "}
+          <strong>{numPages || "?"}</strong>
         </span>
         <button
           onClick={nextPage}
@@ -149,15 +169,7 @@ function PdfViewer({ pdfId, pageNum, searchText }) {
             borderRadius: 4,
             color: "#fff",
             opacity: pageNumber >= numPages ? 0.5 : 1,
-            transition: "background-color 0.3s",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor =
-              pageNumber >= numPages ? "#007bff" : "#0056b3")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "#007bff")
-          }
         >
           Next ▶
         </button>

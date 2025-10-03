@@ -66,8 +66,10 @@ const App = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/compare" element={<BookComparison />} />
             <Route
+              // /book?pdfId=2&pageNum=50&searchText=Analytics
+              
               path="/book"
-              element={<PdfViewer pdfId={1} pageNum={112} searchText="Transaction Processing or Analytics?" />}
+              element={<PdfViewer/>}
             />
             <Route
               path="/book-123"
