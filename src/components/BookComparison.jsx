@@ -5,9 +5,9 @@ export default function BookComparison() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSection, setActiveSection] = useState("overview");
 
-  const books = [
+  const topic = [
     {
-      id: 1,
+      book_id: 1,
       title: "Atomic Habits",
       author: "James Clear",
       color: "blue",
@@ -59,7 +59,7 @@ export default function BookComparison() {
       ],
     },
     {
-      id: 2,
+      book_id: 2,
       title: "Deep Work",
       author: "Cal Newport",
       color: "purple",
@@ -79,7 +79,7 @@ export default function BookComparison() {
       ],
     },
     {
-      id: 3,
+      book_id: 3,
       title: "The Power of Now",
       author: "Eckhart Tolle",
       color: "emerald",
@@ -101,9 +101,9 @@ export default function BookComparison() {
   ];
 
   const sections = [
-    { id: "overview", label: "Overview" },
-    { id: "similarPoints", label: "Similarities" },
-    { id: "distinctPoints", label: "Unique Points" },
+    { book_id: "overview", label: "Overview" },
+    { book_id: "similarPoints", label: "Similarities" },
+    { book_id: "distinctPoints", label: "Unique Points" },
   ];
 
   const colorClasses = {
@@ -130,7 +130,7 @@ export default function BookComparison() {
     },
   };
 
-  const filteredBooks = books.filter(
+  const filteredBooks = topic.filter(
     (book) =>
       book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       book.author.toLowerCase().includes(searchTerm.toLowerCase())
