@@ -15,11 +15,11 @@ import ThemeToggle from "./components/ThemeToggle";
 import BookComparison from "./components/BookComparison";
 
 // import BookComparison from "../public/book.pdf";
-import { pdfjs } from 'react-pdf';
+import { pdfjs } from "react-pdf";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.mjs',
-  import.meta.url,
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
 ).toString();
 
 const App = () => {
@@ -61,23 +61,29 @@ const App = () => {
 
         {/* Main content */}
 
-        <main className="flex-grow container mx-auto px-4 py-8">
+        <main className=" w-full py-2 absolute inset-0">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/compare" element={<BookComparison />} />
             <Route
               // /book?pdfId=2&pageNum=50&searchText=Analytics
-              
+
               path="/book"
-              element={<PdfViewer/>}
+              element={<PdfViewer />}
             />
             <Route
               path="/book-123"
-              element={<PdfViewer pdfId={1} pageNum={117} searchText="Column-Oriented Storage" />}
+              element={
+                <PdfViewer
+                  pdfId={1}
+                  pageNum={117}
+                  searchText="Column-Oriented Storage"
+                />
+              }
             />
             <Route path="/about" element={<About />} />
             <Route path="/pdf" element={<PdfViewer />} />
-            
+
             {/* <Route path="*" element={<HomePage />} /> */}
           </Routes>
         </main>

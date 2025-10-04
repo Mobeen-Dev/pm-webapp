@@ -8,94 +8,109 @@ export default function BookComparison() {
   const topic = [
     {
       book_id: 1,
-      title: "Atomic Habits",
-      author: "James Clear",
-      color: "blue",
+      title: "PMBOK Guide",
+      author: "PMI",
+      color: "blue", // UI theme color
       overview:
-        "A comprehensive guide to building good habits and breaking bad ones through small, incremental changes that compound over time.",
+        "Covers project management standards and guidelines with a structured approach to processes including risk management.",
       similarPoints: [
         {
-          pageNo: 21,
-          start_text: "Systems",
-          content: "Systems over goals",
-        },
-        {
-          pageNo: 32,
-          start_text: "Identity-based",
-          content: "Identity-based habits",
-        },
-        {
-          pageNo: 38,
-          start_text: "The",
-          content: "The 1% improvement principle",
-        },
-        {
-          pageNo: 14,
-          start_text: "Environment",
-          content: "Environment design",
+          pageNo: 314,
+          start_text: "Risk Management Plan", // ✅ full anchor phrase
+          content:
+            "Risk Management Plan – a component of the project plan describing how risk management activities will be structured and performed.",
         },
       ],
-      distinctPoints: [
-        {
-          pageNo: 172,
-          start_text: "the",
-          content: "Start with 2-minute habits",
-        },
-        {
-          pageNo: 45,
-          start_text: "and",
-          content: "Use habit stacking",
-        },
-        {
-          pageNo: 289,
-          start_text: "in",
-          content: "Make good habits obvious and easy",
-        },
-        {
-          pageNo: 103,
-          start_text: "of",
-          content: "Track your progress daily",
-        },
-      ],
+      distinctPoints: [],
     },
     {
       book_id: 2,
-      title: "Deep Work",
-      author: "Cal Newport",
+      title: "PRINCE2",
+      author: "Axelos",
       color: "purple",
       overview:
-        "Explores the power of focused concentration and provides strategies to cultivate the ability to focus without distraction on cognitively demanding tasks.",
+        "Focuses on principles, themes, and processes for managing projects, with dedicated guidance for risk planning, analysis, and control.",
       similarPoints: [
-        "Eliminate distractions",
-        "Deliberate practice",
-        "Time blocking",
-        "Value of solitude",
+        {
+          pageNo: 169,
+          start_text: "Risk planning", // ✅ from 9.2.1 heading
+          content:
+            "Risk planning – use of categories and techniques (PESTLE, SWOT) to identify and prioritize risks.",
+        },
+        {
+          pageNo: 169,
+          start_text: "Risk analysis", // ✅ from 9.2.2 heading
+          content:
+            "Risk analysis – qualitative and quantitative assessment methods such as probability, impact, and risk matrices.",
+        },
+        {
+          pageNo: 170,
+          start_text: "Risk control", // ✅ from 9.2.3 heading
+          content:
+            "Risk control – includes risk responses (avoid, reduce, transfer, share, accept), risk owners, and maintaining a risk budget.",
+        },
       ],
       distinctPoints: [
-        "Schedule deep work blocks",
-        "Create shutdown rituals",
-        "Embrace boredom",
-        "Quit social media strategically",
+        {
+          pageNo: 169,
+          start_text: "Insufficient staffing", // ✅ first 2–3 words of example
+          content:
+            "Example: insufficient staffing capacity could delay training and extend project timelines.",
+        },
+        {
+          pageNo: 169,
+          start_text: "If allowable", // ✅ first words of example
+          content:
+            "Example: adding discount codes in regulatory renewal emails could generate additional revenue.",
+        },
+        {
+          pageNo: 172,
+          start_text: "Scenario: example of a combination", // ✅ first words of example
+          content:
+            "Security risk mitigation in construction projects with health & safety meetings, inspections, and indemnification clauses.",
+        },
       ],
     },
     {
-      book_id: 3,
-      title: "The Power of Now",
-      author: "Eckhart Tolle",
+      book_id: 4,
+      title: "ISO 21502",
+      author: "ISO",
       color: "emerald",
       overview:
-        "A spiritual guide that emphasizes living in the present moment and freeing oneself from the mind's constant chatter and anxiety about past and future.",
+        "Provides international project management guidelines, emphasizing continuous risk identification, assessment, and control.",
       similarPoints: [
-        "Present moment awareness",
-        "Observing thoughts",
-        "Acceptance of what is",
-        "Inner stillness",
+        {
+          pageNo: 42,
+          start_text: "Risk management", // ✅ first words
+          content:
+            "Risk management increases likelihood of achieving project objectives by integrating risk identification, assessment, treatment, and control.",
+        },
+        {
+          pageNo: 43,
+          start_text: "Identifying risk", // ✅ from identifying risk section
+          content:
+            "Risks are identified throughout the life cycle and documented in a risk register, with assigned owners.",
+        },
+        {
+          pageNo: 43,
+          start_text: "Assessing risk", // ✅ from assessing risk
+          content:
+            "Risk assessment considers probability, consequence, and proximity, and prioritizes risks for further action.",
+        },
+        {
+          pageNo: 43,
+          start_text: "Treating risk", // ✅ from treating risk section
+          content:
+            "Risk treatment options: accept, avoid, mitigate, transfer, use contingency, exploit, enhance.",
+        },
       ],
       distinctPoints: [
-        "Practice conscious breathing",
-        "Watch the thinker within",
-        "Accept the present moment",
-        "Find inner body awareness",
+        {
+          pageNo: 43,
+          start_text: "7.8.5", // ✅ from controlling risk
+          content:
+            "Controlling risks ensures that negative impacts are minimized and positive impacts maximized, tracking whether responses are effective.",
+        },
       ],
     },
   ];
@@ -173,10 +188,10 @@ export default function BookComparison() {
           <div className="flex space-x-8">
             {sections.map((section) => (
               <button
-                key={section.id}
-                onClick={() => setActiveSection(section.id)}
+                key={section.book_id}
+                onClick={() => setActiveSection(section.book_id)}
                 className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeSection === section.id
+                  activeSection === section.book_id
                     ? "border-blue-600 text-blue-600"
                     : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
                 }`}
@@ -193,7 +208,7 @@ export default function BookComparison() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {filteredBooks.map((book) => (
             <div
-              key={book.id}
+              key={book.book_id}
               className={`${colorClasses[book.color].bg} border-2 ${
                 colorClasses[book.color].border
               } rounded-xl shadow-md overflow-hidden transition-transform hover:scale-105`}
@@ -241,7 +256,7 @@ export default function BookComparison() {
                             } w-2 h-2 rounded-full mt-2 mr-3 flex-shrink-0`}
                           ></span>
                           <a
-                            href={`/book?pdfId=${book.id}&pageNum=${
+                            href={`/book?pdfId=${book.book_id}&pageNum=${
                               point.pageNo
                             }&searchText=${encodeURIComponent(
                               point.start_text
@@ -278,7 +293,7 @@ export default function BookComparison() {
                           } transition-colors`}
                         >
                           <a
-                            href={`/book?pdfId=${book.id}&pageNum=${
+                            href={`/book?pdfId=${book.book_id}&pageNum=${
                               point.pageNo
                             }&searchText=${encodeURIComponent(
                               point.start_text

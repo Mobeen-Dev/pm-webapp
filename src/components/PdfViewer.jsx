@@ -94,10 +94,7 @@ function PdfViewer() {
   }
 
   // ✅ Choose PDF file by id
-  let pdf = "http://localhost:5173/book0.pdf";
-  if (pdfId === 1) pdf = "http://localhost:5173/book1.pdf";
-  if (pdfId === 2) pdf = "http://localhost:5173/book2.pdf";
-  if (pdfId === 3) pdf = "http://localhost:5173/book3.pdf";
+  const pdf = `http://localhost:5173/book${pdfId}.pdf`;
 
   return (
     <div
