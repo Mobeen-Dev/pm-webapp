@@ -18,8 +18,6 @@ function PdfViewer() {
   const initialPageNum = parseInt(searchParams.get("pageNum") || "1", 10);
   const searchText =
     searchParams.get("searchText") || "";
-  console.log("searchText")
-  console.log(searchText)
   const [pageNumber, setPageNumber] = useState(initialPageNum);
 
   useEffect(() => {
@@ -94,7 +92,8 @@ function PdfViewer() {
   }
 
   // ✅ Choose PDF file by id
-  const pdf = `http://localhost:5173/book${pdfId}.pdf`;
+  // const pdf = `http://localhost:5173/book${pdfId}.pdf`;
+  const pdf = `/book${pdfId}.pdf`;
 
   return (
     <div

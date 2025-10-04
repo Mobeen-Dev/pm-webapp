@@ -61,7 +61,7 @@ const App = () => {
 
         {/* Main content */}
 
-        <main className=" w-full py-2 absolute inset-0">
+        <main className=" w-full  absolute inset-0">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/compare" element={<BookComparison />} />

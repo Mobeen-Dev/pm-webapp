@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import ThemeToggle from "./ThemeToggle";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -8,6 +9,7 @@ const HomePage = () => {
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const searchRef = useRef(null);
+  const navigate = useNavigate();
 
   // Pre-entered search values
   const searchSuggestions = [
@@ -36,7 +38,12 @@ const HomePage = () => {
   const handleSuggestionClick = (suggestion) => {
     setSearchTerm(suggestion);
     setIsSearchActive(false);
-    // Handle search action here
+
+    const encodedTopic = encodeURIComponent(suggestion);
+
+    const targetPath = `/compare?topic=${encodedTopic}`;
+
+    navigate(targetPath);
     console.log("Searching for:", suggestion);
   };
 
@@ -86,43 +93,42 @@ const HomePage = () => {
     highlightText("UI/UX Design");
   };
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
+    <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900 font-sans m-0 p-0 w-full h-full"> 
       {/* Navigation Header */}
-      <nav className="bg-gray-900/95 backdrop-blur-md border-b border-gray-800/50 sticky top-0 z-40 w-full">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+      <nav class="bg-gray-900/95 backdrop-blur-md border-b border-gray-800/50 sticky top-0 z-40 w-full">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between items-center py-5">
+            <div class="flex items-center">
+              <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
                 PM Codex
               </h1>
             </div>
-            <div className="hidden md:flex items-center space-x-8">
+            <div class="hidden md:flex items-center space-x-8">
               <a
                 href="#"
-                className="text-gray-300 hover:text-white transition-colors duration-200"
+                class="text-gray-300 hover:text-white transition-colors duration-200"
               >
                 Services
               </a>
               <a
                 href="#"
-                className="text-gray-300 hover:text-white transition-colors duration-200"
+                class="text-gray-300 hover:text-white transition-colors duration-200"
               >
                 Portfolio
               </a>
               <a
                 href="#"
-                className="text-gray-300 hover:text-white transition-colors duration-200"
+                class="text-gray-300 hover:text-white transition-colors duration-200"
               >
                 About
               </a>
-              <button className="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white px-6 py-2 rounded-lg transition-all duration-200 shadow-lg shadow-indigo-500/20">
+              <button class="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700 text-white px-6 py-2 rounded-lg transition-all duration-200 shadow-lg shadow-indigo-500/20">
                 Contact
               </button>
             </div>
           </div>
         </div>
       </nav>
-
       {/* Main Content */}
       <main className="relative  w-full">
         {/* Hero Section */}
