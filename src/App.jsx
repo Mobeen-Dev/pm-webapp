@@ -13,6 +13,7 @@ import PdfViewer from "./components/PdfViewer";
 import ThemeBtn from "./components/ThemeButton";
 import ThemeToggle from "./components/ThemeToggle";
 import BookComparison from "./components/BookComparison";
+import ExpandableTabsPage from "./components/Search";
 
 // import BookComparison from "../public/book.pdf";
 import { pdfjs } from "react-pdf";
@@ -65,22 +66,13 @@ const App = () => {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/compare" element={<BookComparison />} />
+            <Route path="/search" element={<ExpandableTabsPage />} />
             <Route
-              // /book?pdfId=2&pageNum=50&searchText=Analytics
 
               path="/book"
               element={<PdfViewer />}
             />
-            <Route
-              path="/book-123"
-              element={
-                <PdfViewer
-                  pdfId={1}
-                  pageNum={117}
-                  searchText="Column-Oriented Storage"
-                />
-              }
-            />
+            
             <Route path="/about" element={<About />} />
             <Route path="/pdf" element={<PdfViewer />} />
 
