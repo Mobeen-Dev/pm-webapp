@@ -30,12 +30,13 @@ pm-webapp/
 │   ├── requirements.txt    # Python dependencies
 │   └── ...
 │
-├── Frontend/               # React frontend application
-│   ├── src/               # Source files
-│   ├── public/            # Static assets
-│   ├── package.json       # Node.js dependencies
-│   ├── vite.config.js     # Vite configuration
-│   └── ...
+│ # React frontend application
+│
+├── src/               # Source files
+├── public/            # Static assets
+├── package.json       # Node.js dependencies
+├── vite.config.js     # Vite configuration
+├── ...
 │
 └── README.md              # You are here!
 ```
@@ -104,8 +105,6 @@ Add the following configuration:
 ```env
 PORT=5000
 DEBUG=True
-DATABASE_URL=your_database_url_here
-SECRET_KEY=your_secret_key_here
 ```
 
 ### Step 4: Install Dependencies
@@ -198,7 +197,7 @@ python server.py     # Start the server
 
 ---
 
-## 🔧 Configuration
+## 🔧 Configuration < Contributers Only >
 
 ### CORS Setup
 
