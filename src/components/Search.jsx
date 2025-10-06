@@ -4,7 +4,13 @@ import { ChevronDown, ChevronRight, BookOpen, ExternalLink, FileText } from 'luc
 export default function ExpandableTabsPage() {
   const [activeTab, setActiveTab] = useState('pmbok');
   const [expandedRows, setExpandedRows] = useState({});
-
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [activeSection, setActiveSection] = useState("overview");
+  const [comparisonData, setComparisonData] = useState(null);
+  const [error, setError] = useState(null);
+  
   // Hardcore data for all 3 sections
   const tabsData = {
     pmbok: {
