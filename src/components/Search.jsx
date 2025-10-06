@@ -1,17 +1,24 @@
 import { useState } from 'react';
+import { MagnifyingGlassIcon, XMarkIcon} from "@heroicons/react/24/outline";
 import { ChevronDown, ChevronRight, BookOpen, ExternalLink, FileText } from 'lucide-react';
 
-export default function ExpandableTabsPage() {
-  const [activeTab, setActiveTab] = useState('pmbok');
-  const [expandedRows, setExpandedRows] = useState({});
-  const [searchTerm, setSearchTerm] = useState("");
+const ICON_MAP = {
+  "chevrondown": ChevronDown,
+  "chevronright": ChevronRight,
+  "bookopen": BookOpen,
+  "externallink": ExternalLink,
+  "filetext": FileText,
+};
+
+export default function KnowledgeBaseSearch() {
+  const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [activeSection, setActiveSection] = useState("overview");
-  const [comparisonData, setComparisonData] = useState(null);
+  const [activeTab, setActiveTab] = useState('pmbok');
+  const [expandedRows, setExpandedRows] = useState({});
+  const [searchResults, setSearchResults] = useState(null);
   const [error, setError] = useState(null);
-  
-  // Hardcore data for all 3 sections
+
   const tabsData = {
     pmbok: {
       name: 'PMBOK Guide',
@@ -134,33 +141,6 @@ export default function ExpandableTabsPage() {
             { section: '3.4', page: 90, title: 'Managing Flow' },
             { section: '3.5', page: 95, title: 'Making Policies Explicit' }
           ]
-        },
-        {
-          id: 4,
-          number: '4',
-          title: 'Extreme Programming (XP)',
-          count: 19,
-          subsections: [
-            { section: '4.1', page: 105, title: 'XP Values' },
-            { section: '4.2', page: 110, title: 'XP Practices' },
-            { section: '4.3', page: 115, title: 'Pair Programming' },
-            { section: '4.4', page: 120, title: 'Test-Driven Development' },
-            { section: '4.5', page: 125, title: 'Continuous Integration' },
-            { section: '4.6', page: 130, title: 'Refactoring' }
-          ]
-        },
-        {
-          id: 5,
-          number: '5',
-          title: 'Scaling Agile',
-          count: 21,
-          subsections: [
-            { section: '5.1', page: 142, title: 'SAFe Framework' },
-            { section: '5.2', page: 148, title: 'LeSS Framework' },
-            { section: '5.3', page: 154, title: 'Disciplined Agile' },
-            { section: '5.4', page: 160, title: 'Nexus Framework' },
-            { section: '5.5', page: 166, title: 'Scrum of Scrums' }
-          ]
         }
       ]
     },
@@ -210,36 +190,96 @@ export default function ExpandableTabsPage() {
             { section: '3.4', page: 106, title: 'Balanced Scorecard' },
             { section: '3.5', page: 112, title: 'OKRs and KPIs' }
           ]
-        },
-        {
-          id: 4,
-          number: '4',
-          title: 'Communication and Influence',
-          count: 20,
-          subsections: [
-            { section: '4.1', page: 125, title: 'Effective Communication' },
-            { section: '4.2', page: 130, title: 'Active Listening' },
-            { section: '4.3', page: 135, title: 'Stakeholder Management' },
-            { section: '4.4', page: 140, title: 'Negotiation Skills' },
-            { section: '4.5', page: 145, title: 'Influence Without Authority' },
-            { section: '4.6', page: 150, title: 'Presentation Skills' }
-          ]
-        },
-        {
-          id: 5,
-          number: '5',
-          title: 'Change Management',
-          count: 18,
-          subsections: [
-            { section: '5.1', page: 162, title: 'Understanding Change' },
-            { section: '5.2', page: 168, title: 'Kotter\'s 8-Step Process' },
-            { section: '5.3', page: 174, title: 'ADKAR Model' },
-            { section: '5.4', page: 180, title: 'Overcoming Resistance' },
-            { section: '5.5', page: 186, title: 'Leading Through Change' }
-          ]
         }
       ]
     }
+  };
+
+  function getIconComponent(iconName) {
+    // Normalize the input string to handle case differences or spaces if needed
+    const normalizedName = iconName.toLowerCase().trim();
+
+    // Return the component from the map, or null if the key doesn't exist
+    return ICON_MAP[normalizedName] || null;
+  }
+
+  const performSearch = async (query) => {
+    if (!query || query.trim().length === 0) {
+      setError('Please enter a search term');
+      return;
+    }
+
+    if (query.trim().length < 2) {
+      setError('Search term must be at least 2 characters');
+      return;
+    }
+
+    if (query.length > 100) {
+      setError('Search term is too long');
+      return;
+    }
+
+    const sanitizedQuery = query.trim().replace(/[<>{}]/g, '');
+
+    setIsSearching(true);
+    setError(null);
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      const response = await fetch('http://localhost:8000/data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: sanitizedQuery })
+      });
+      const data = await response.json();
+
+      // Filter data based on search
+      const filteredData = {};
+      let hasResults = false;
+
+      Object.entries(data).forEach(([key, tab]) => {
+        const filteredSections = tab.sections.filter(section => true); 
+
+
+        if (filteredSections.length > 0) {
+          filteredData[key] = { ...tab, sections: filteredSections };
+          hasResults = true;
+        }
+      });
+
+      if (!hasResults) {
+        setError('No results found for your search');
+        setSearchResults(null);
+      } else {
+        setSearchResults(filteredData);
+        setActiveTab(Object.keys(filteredData)[0]);
+        setHasSearched(true);
+      }
+    } catch (err) {
+      setError('An error occurred while searching. Please try again.');
+      console.error('Search error:', err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSearch = () => {
+    performSearch(searchTerm);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleReset = () => {
+    setSearchTerm('');
+    setHasSearched(false);
+    setSearchResults(null);
+    setError(null);
+    setExpandedRows({});
   };
 
   const toggleRow = (sectionId) => {
@@ -248,9 +288,6 @@ export default function ExpandableTabsPage() {
       [sectionId]: !prev[sectionId]
     }));
   };
-
-  const currentData = tabsData[activeTab];
-  const IconComponent = currentData.icon;
 
   const getColorClasses = (color) => {
     const colors = {
@@ -282,12 +319,13 @@ export default function ExpandableTabsPage() {
     return colors[color];
   };
 
-  const colorClasses = getColorClasses(currentData.color);
+  const currentData = searchResults?.[activeTab];
+  const colorClasses = currentData ? getColorClasses(currentData.color) : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-50">
-      {/* Navigation Header */}
-      <nav className="bg-gray-900/95 backdrop-blur-md border-b border-gray-800/50 sticky top-0 z-40 w-full">
+      {/* Navigation */}
+      <nav className="bg-gray-900/95 backdrop-blur-md border-b border-gray-800/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -310,133 +348,190 @@ export default function ExpandableTabsPage() {
         </div>
       </nav>
 
-      {/* Main Content */}
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">Knowledge Base</h1>
-          <p className="text-xl text-gray-600">Explore comprehensive project management resources and references</p>
-        </div>
-
-        {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="border-b border-gray-200">
-            <nav className="flex -mb-px">
-              {Object.entries(tabsData).map(([key, tab]) => {
-                const TabIcon = tab.icon;
-                const isActive = activeTab === key;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => {
-                      setActiveTab(key);
-                      setExpandedRows({});
-                    }}
-                    className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm transition-all duration-200 ${
-                      isActive
-                        ? `${getColorClasses(tab.color).border} ${getColorClasses(tab.color).text}`
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    <TabIcon className="w-5 h-5" />
-                    {tab.name}
-                  </button>
-                );
-              })}
-            </nav>
+      {/* Search Hero */}
+      <div className="bg-white border-b border-gray-200/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-bold text-gray-900 mb-3">Knowledge Base</h2>
+            <p className="text-xl text-gray-600">Search comprehensive project management resources and references</p>
           </div>
 
-          {/* Tab Content */}
-          <div className="p-6">
-            <div className="space-y-3">
-              {currentData.sections.map((section) => {
-                const isExpanded = expandedRows[section.id];
-                return (
-                  <div key={section.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
-                    {/* Main Row */}
-                    <button
-                      onClick={() => toggleRow(section.id)}
-                      className="w-full flex items-center justify-between p-4 bg-white hover:bg-gray-50 transition-colors duration-150"
-                    >
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${colorClasses.bg} text-white font-semibold`}>
-                          {section.number}
-                        </div>
-                        <div className="text-left flex-1">
-                          <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
-                        </div>
-                        <div className="flex items-center gap-6">
-                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${colorClasses.bgLight} ${colorClasses.text}`}>
-                            {section.count} topics
-                          </span>
-                          {isExpanded ? (
-                            <ChevronDown className="w-5 h-5 text-gray-400" />
-                          ) : (
-                            <ChevronRight className="w-5 h-5 text-gray-400" />
-                          )}
-                        </div>
-                      </div>
-                    </button>
+          {/* Search Bar */}
+          <div className="relative max-w-2xl mx-auto">
+            <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search topics, sections, or keywords..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="w-full pl-12 pr-24 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all duration-200"
+              disabled={isSearching}
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute right-20 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            )}
+            <button
+              onClick={handleSearch}
+              disabled={isSearching || !searchTerm.trim()}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium"
+            >
+              {isSearching ? 'Searching...' : 'Search'}
+            </button>
+          </div>
 
-                    {/* Expanded Subsections */}
-                    {isExpanded && (
-                      <div className="bg-gray-50 border-t border-gray-200">
-                        <div className="divide-y divide-gray-200">
-                          {section.subsections.map((subsection, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center justify-between p-4 hover:bg-white transition-colors duration-150"
-                            >
-                              <div className="flex items-center gap-4 flex-1">
-                                <span className={`px-2 py-1 rounded text-xs font-mono font-semibold ${colorClasses.text} ${colorClasses.bgLight}`}>
-                                  {subsection.section}
-                                </span>
-                                <span className="text-gray-700 font-medium">{subsection.title}</span>
-                              </div>
-                              <div className="flex items-center gap-4">
-                                <span className="text-sm text-gray-500 font-medium">Page {subsection.page}</span>
-                                <button className={`flex items-center gap-2 px-4 py-2 rounded-lg ${colorClasses.bg} ${colorClasses.hover} text-white text-sm font-medium transition-colors duration-200`}>
-                                  <ExternalLink className="w-4 h-4" />
-                                  Reference
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 max-w-2xl mx-auto p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-800 text-sm text-center">{error}</p>
+            </div>
+          )}
+
+          {/* Reset Button */}
+          {hasSearched && searchResults && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={handleReset}
+                className="text-indigo-600 hover:text-indigo-700 text-sm font-medium transition-colors duration-200"
+              >
+                ← Clear Search
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Loading State */}
+      {isSearching && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex flex-col items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
+            <p className="text-gray-600">Searching knowledge base...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Results Content */}
+      {hasSearched && searchResults && !isSearching && (
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            {/* Tabs */}
+            <div className="border-b border-gray-200">
+              <nav className="flex -mb-px">
+                {Object.entries(searchResults).map(([key, tab]) => {
+                  const TabIcon = getIconComponent(tab.icon);
+                  // const TabIcon = tab.icon;
+                  const isActive = activeTab === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        setActiveTab(key);
+                        setExpandedRows({});
+                      }}
+                      className={`flex items-center gap-2 px-6 py-4 border-b-2 font-medium text-sm transition-all duration-200 ${
+                        isActive
+                          ? `${getColorClasses(tab.color).border} ${getColorClasses(tab.color).text}`
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      <TabIcon className="w-5 h-5" />
+                      {tab.name}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            {/* Tab Content */}
+            <div className="p-6">
+              <div className="space-y-3">
+                {currentData.sections.map((section) => {
+                  const isExpanded = expandedRows[section.id];
+                  return (
+                    <div key={section.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
+                      <button
+                        onClick={() => toggleRow(section.id)}
+                        className="w-full flex items-center justify-between p-4 bg-white hover:bg-gray-50 transition-colors duration-150"
+                      >
+                        <div className="flex items-center gap-4 flex-1">
+                          <div className={`flex items-center justify-center w-10 h-10 rounded-lg ${colorClasses.bg} text-white font-semibold`}>
+                            {section.number}
+                          </div>
+                          <div className="text-left flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900">{section.title}</h3>
+                          </div>
+                          <div className="flex items-center gap-6">
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${colorClasses.bgLight} ${colorClasses.text}`}>
+                              {section.count} topics
+                            </span>
+                            {isExpanded ? (
+                              <ChevronDown className="w-5 h-5 text-gray-400" />
+                            ) : (
+                              <ChevronRight className="w-5 h-5 text-gray-400" />
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                      </button>
+
+                      {isExpanded && (
+                        <div className="bg-gray-50 border-t border-gray-200">
+                          <div className="divide-y divide-gray-200">
+                            {section.subsections.map((subsection, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-center justify-between p-4 hover:bg-white transition-colors duration-150"
+                              >
+                                <div className="flex items-center gap-4 flex-1">
+                                  <span className={`px-2 py-1 rounded text-xs font-mono font-semibold ${colorClasses.text} ${colorClasses.bgLight}`}>
+                                    {subsection.section}
+                                  </span>
+                                  <span className="text-gray-700 font-medium">{subsection.title}</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <span className="text-sm text-gray-500 font-medium">Page {subsection.page}</span>
+                                  <button className={`flex items-center gap-2 px-4 py-2 rounded-lg ${colorClasses.bg} ${colorClasses.hover} text-white text-sm font-medium transition-colors duration-200`}>
+                                    <ExternalLink className="w-4 h-4" />
+                                    Reference
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
+        </main>
+      )}
 
-        {/* Stats Footer */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {Object.entries(tabsData).map(([key, tab]) => {
-            const totalTopics = tab.sections.reduce((sum, section) => sum + section.count, 0);
-            return (
-              <div key={key} className="bg-white rounded-xl p-6 shadow-md">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">{tab.name}</p>
-                    <p className="text-3xl font-bold text-gray-900">{totalTopics}</p>
-                    <p className="text-sm text-gray-500 mt-1">Total Topics</p>
-                  </div>
-                  <div className={`w-12 h-12 rounded-lg ${getColorClasses(tab.color).bg} flex items-center justify-center`}>
-                    <tab.icon className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+      {/* Empty State */}
+      {!hasSearched && !isSearching && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center">
+            <MagnifyingGlassIcon className="w-20 h-20 text-gray-300 mx-auto mb-6" />
+            <h3 className="text-2xl font-semibold text-gray-900 mb-3">
+              Start Searching the Knowledge Base
+            </h3>
+            <p className="text-gray-600 max-w-md mx-auto">
+              Enter keywords to find relevant topics across PMBOK, Agile Practices, and Leadership resources.
+            </p>
+          </div>
         </div>
-      </main>
+      )}
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 w-full mt-20">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <footer className="bg-gray-900 text-white py-12 mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
               DevHub
