@@ -14,6 +14,9 @@ import ThemeBtn from "./components/ThemeButton";
 import ThemeToggle from "./components/ThemeToggle";
 import BookComparison from "./components/BookComparison";
 import ExpandableTabsPage from "./components/Search";
+import ExpandableTabsPage2 from "./components/Search2";
+import AnalyticsDashboard from "./components/Analytics";
+
 
 // import BookComparison from "../public/book.pdf";
 import { pdfjs } from "react-pdf";
@@ -66,7 +69,10 @@ const App = () => {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/compare" element={<BookComparison />} />
+            <Route path="/analytics" element={<AnalyticsDashboard />} />
+      
             <Route path="/search" element={<ExpandableTabsPage />} />
+            <Route path="/search2" element={<ExpandableTabsPage2 />} />
             <Route
 
               path="/book"

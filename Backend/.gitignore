@@ -2,3 +2,5 @@
 Data/*.*
 *.pdf
 *.svg
+__pycache__
+Data/
