@@ -7,13 +7,15 @@ from create_index import PDFBookIndexer
 
 
 def main():
+    final_index_folder = os.path.join(os.getcwd(), "final_index")
+    os.makedirs(final_index_folder, exist_ok=True)
 
     if len(sys.argv) < 3:
         print("Usage: python pdf_index_loader.py <index_folder> <query>")
         sys.exit(1)
 
     index_folder = Path(sys.argv[1])
-    final_index_folder = Path(sys.argv[2])
+    data_folder = Path(sys.argv[2])
     query = " ".join(sys.argv[3:])
 
     if not index_folder.exists():
@@ -30,6 +32,7 @@ def main():
     all_results = {}
 
     for pkl_file in pkl_files:
+        book_wise_result = {}
 
         file_name = str(pkl_file.name)
         base_name = file_name.split("_")[0]
@@ -38,34 +41,43 @@ def main():
         indexer = PDFBookIndexer()
         indexer.load_index(str(pkl_file))
                 
-        section_ids = indexer.search2(query) 
-        # print(section_ids)
-        section_ids = section_ids[base_name]
-        hierarchy_sections = indexer.return_hierarchy(section_ids)
-        final_index_path = final_index_folder / f"{base_name}_fileIndex.pkl"
+        # Get hierarchy and all section IDs
+        hierarchy_list = indexer.get_section_hierarchy_list()
         
-        final_index = None
-        with open(final_index_path, "rb") as f:
-            final_index = pickle.load(f)
+        # section_ids = indexer.search2(query) 
         
-        # Build list of dicts for matched section IDs
-        results = [
-            {
-                "section_id": sid,
-                "startText": final_index.get(sid, {}).get("startText", "Not Found"),
-                "PageNumber": final_index.get(sid, {}).get("PageNumber", 1),
-            }
-            for sid in section_ids
-        ]
+        # Build Another Index
+        section_ids = indexer.get_all_section_ids()
 
-        all_results[base_name] = results
-        all_results[f"_{base_name}"] = hierarchy_sections
+        match_data = indexer.match_sections(hierarchy_list, section_ids)
+        # print(section_ids)
+        file_name = base_name + ".pdf"
+        pdf_path = os.path.join(data_folder, file_name)
+        print(pdf_path)
+        for section_id, data in match_data.items():
+            page_number, title = indexer.find_section_page(pdf_path, data["title"])
+            if page_number:
+                book_wise_result[section_id] = {
+                    "startText": title,
+                    "PageNumber": int(page_number),
+                }
+        print(book_wise_result)
+         # --- Save results ---
+        output_pkl_path = os.path.join(final_index_folder, f"{base_name}_fileIndex.pkl")
+        output_json_path = os.path.join(final_index_folder, f"{base_name}_fileIndex.json")
         
+        print(f"💾 Saving: {output_pkl_path}")
+        print(f"💾 Saving: {output_json_path}")
         
-        # function which will use section_ids list into [{where key = id[i] and : value = pkl load respective using filename and value againsta that key}] 
-        
-    print(all_results)
-        
+        # Save as Pickle
+        with open(output_pkl_path, "wb") as pkl_out:
+            pickle.dump(book_wise_result, pkl_out)
+
+        # Save as JSON (human-readable)
+        with open(output_json_path, "w", encoding="utf-8") as json_out:
+            json.dump(book_wise_result, json_out, ensure_ascii=False, indent=4)
+    
+
         # sys.exit()
         # results = indexer.display_search_results(query, match_all=True)
 
