@@ -121,16 +121,16 @@ stucture: dict[str, dict] = {
         "color": "indigo",
     },
     "PRINCE2": {
-        "name": "Agile Practices",
+        "name": "PRINCE 2",
         "icon": "FileText",
         "color": "cyan",
     },
     "ISO": {
-        "name": "Leadership & Strategy",
+        "name": "ISO",
         "icon": "BookOpen",
         "color": "purple",
     },
-    "Path": {"route": path},
+    # "Path": {"route": path},
 }
 
 
@@ -147,26 +147,32 @@ def main(query: str, strict_mode: bool):
         print(f"❌ Folder '{index_folder}' not found.")
         sys.exit(1)
 
-    pkl_files = list(index_folder.glob("*.pkl"))
+    pkl_files = sorted(index_folder.glob("*.pkl"), key=lambda x: x.name.lower())
     if not pkl_files:
         print("⚠️ No .pkl index files found.")
         sys.exit(0)
 
     print(f"🔍 Searching '{query}' across {len(pkl_files)} indexes...\n")
 
-    all_results = {}
-
     for index, pkl_file in enumerate(pkl_files):
         file_name = str(pkl_file.name)
         base_name = file_name.split("_")[0]
-
+        print("BASE NAME ",base_name)
         print(f"📖 Loading index → {pkl_file.name}")
         indexer = PDFBookIndexer()
         indexer.load_index(str(pkl_file))
 
         section_ids = indexer.search2(query, match_all=strict_mode)
         # print(section_ids)
-        section_ids = section_ids[base_name]
+        section_ids = section_ids.get(base_name, None)
+        if not section_ids:
+            if index == 0:
+                stucture["PMBook"]["sections"] = []
+            elif index == 1:
+                stucture["PRINCE2"]["sections"] = []
+            elif index == 2:
+                stucture["ISO"]["sections"] = []
+            continue
         hierarchy_sections = indexer.return_hierarchy(section_ids)
         final_index_path = final_index_folder / f"{base_name}_fileIndex.pkl"
 
@@ -175,26 +181,28 @@ def main(query: str, strict_mode: bool):
             final_index = pickle.load(f)
 
         # Build list of dicts for matched section IDs
+        buffer:int = 0
+        if base_name == "book1":
+            buffer = 80
+        if base_name == "book3":
+            buffer = 1
         results = [
             {
                 "section_id": sid,
                 "startText": final_index.get(sid, {}).get("startText", "Not Found"),
-                "PageNumber": final_index.get(sid, {}).get("PageNumber", 1),
+                "PageNumber": buffer+int(final_index.get(sid, {}).get("PageNumber", 1)),
             }
             for sid in section_ids
         ]
 
-        all_results[base_name] = results
-        all_results[f"_{base_name}"] = hierarchy_sections
-
         # Build and save
         result = build_amt_structure(hierarchy_sections, results)
 
-        if index == 1:
+        if index == 0:
             stucture["PMBook"]["sections"] = result
-        elif index == 2:
+        elif index == 1:
             stucture["PRINCE2"]["sections"] = result
-        elif index == 3:
+        elif index == 2:
             stucture["ISO"]["sections"] = result
         # # os.makedirs("final_index", exist_ok=True)
         # with open(f"{base_name}_amt.json", "w", encoding="utf-8") as f:

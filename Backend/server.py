@@ -21,13 +21,15 @@ app.add_middleware(
 
 # uvicorn server:app --reload
 
-
+@app.post("/data")
 async def get_data(request: Request):
     body = await request.json()
     query = body.get("query")
     strict = body.get("strict", False)
     # Fake data from backend
-    return main(query, strict)
+    data = main(query, strict)
+    print(data)
+    return data
     return {
         "PMBook": {
             "name": "PMBOK Guide",
