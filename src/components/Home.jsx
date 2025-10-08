@@ -63,6 +63,7 @@ const HomePage = () => {
       } else if (searchTerm.trim()) {
         setIsSearchActive(false);
         console.log("Searching for:", searchTerm);
+        navigate(`/search?query=${encodeURIComponent(searchTerm)}`);
       }
     } else if (e.key === "Escape") {
       setIsSearchActive(false);
@@ -213,9 +214,9 @@ const HomePage = () => {
 
                 {/* Quick Action Buttons */}
                 <div className="flex flex-wrap justify-center gap-4">
-                  <button className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 hover:text-indigo-600 px-6 py-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105">
+                  <a  href="/search"  className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 hover:text-indigo-600 px-6 py-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105">
                     Custom Search
-                  </button>
+                  </a>
                   <button className="bg-white/90 backdrop-blur-sm hover:bg-white text-gray-700 hover:text-indigo-600 px-6 py-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105">
                     View Full Library
                   </button>

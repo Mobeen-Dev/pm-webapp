@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
+
 
 export default function BookComparison() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSection, setActiveSection] = useState("overview");
   const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
   const requested_topic = searchParams.get("topic") || "Risk Management";
   const topics = {
     "Risk Management": [
@@ -938,6 +940,20 @@ export default function BookComparison() {
     { book_id: "distinctPoints", label: "Unique Points" },
   ];
 
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      
+        navigate(`/search?query=${encodeURIComponent(searchTerm)}`);
+      
+    }
+  };
+
   const colorClasses = {
     blue: {
       bg: "bg-blue-50",
@@ -987,6 +1003,7 @@ export default function BookComparison() {
               placeholder="Search topic or sub-topic..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="w-full pl-10 pr-10 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
             {searchTerm && (

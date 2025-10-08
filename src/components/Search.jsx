@@ -1,7 +1,7 @@
 import { useState, useEffect} from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/24/solid"; // Use solid for the active icon
-
+import { useSearchParams } from "react-router-dom";
 import {
   ChevronDown,
   ChevronRight,
@@ -19,6 +19,7 @@ const ICON_MAP = {
 };
 
 export default function KnowledgeBaseSearch() {
+  const [searchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -28,6 +29,14 @@ export default function KnowledgeBaseSearch() {
   const [error, setError] = useState(null);
   const [isStrictSearch, setIsStrictSearch] = useState(false);
   const [section_id, setsection_id] = useState(1);
+  useEffect(() => {
+    const query = searchParams.get("query");
+    if (query) {
+      setSearchTerm(query);
+      performSearch(query); 
+    }
+  }, [searchParams]);
+
   useEffect(() => {
     const activeTabValue =
       activeTab === "PMBook"
