@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { LockClosedIcon, LockOpenIcon } from "@heroicons/react/24/solid"; // Use solid for the active icon
 
@@ -27,7 +27,21 @@ export default function KnowledgeBaseSearch() {
   const [searchResults, setSearchResults] = useState(null);
   const [error, setError] = useState(null);
   const [isStrictSearch, setIsStrictSearch] = useState(false);
+  const [section_id, setsection_id] = useState(1);
+  useEffect(() => {
+    const activeTabValue =
+      activeTab === "PMBook"
+        ? 1
+        : activeTab === "PRINCE2"
+        ? 2
+        : activeTab === "ISO"
+        ? 3
+        : 0;
 
+    setsection_id(activeTabValue);
+  }, [activeTab]);
+
+  const pdfPath = "http://localhost:5173/";
   const tabsData = {
     pmbok: {
       name: "PMBOK Guide",
@@ -155,7 +169,7 @@ export default function KnowledgeBaseSearch() {
       ],
     },
     agile: {
-      name: "Agile Practices",
+      name: "PRINCE 2",
       icon: FileText,
       color: "cyan",
       sections: [
@@ -212,7 +226,7 @@ export default function KnowledgeBaseSearch() {
       ],
     },
     leadership: {
-      name: "Leadership & Strategy",
+      name: "ISO",
       icon: BookOpen,
       color: "purple",
       sections: [
@@ -309,9 +323,14 @@ export default function KnowledgeBaseSearch() {
       const response = await fetch("http://localhost:8000/data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: sanitizedQuery }),
+        body: JSON.stringify({
+          query: sanitizedQuery,
+          strict: isStrictSearch,
+        }),
       });
       const data = await response.json();
+
+      // const data = await response.json();
 
       // Filter data based on search
       const filteredData = {};
@@ -581,7 +600,7 @@ export default function KnowledgeBaseSearch() {
                 })}
               </nav>
             </div>
-
+            {/* section_id = activeTab === "PMBook" ? 1 : activeTab === "PRINCE2" ? 2 : activeTab === "ISO" ? 3 : 0; */}
             {/* Tab Content */}
             <div className="p-6">
               <div className="space-y-3">
@@ -600,7 +619,7 @@ export default function KnowledgeBaseSearch() {
                           <div
                             className={`flex items-center justify-center w-10 h-10 rounded-lg ${colorClasses.bg} text-white font-semibold`}
                           >
-                            {section.number}
+                            {section.number.slice(0, 4)}
                           </div>
                           <div className="text-left flex-1">
                             <h3 className="text-lg font-semibold text-gray-900">
@@ -644,12 +663,15 @@ export default function KnowledgeBaseSearch() {
                                   <span className="text-sm text-gray-500 font-medium">
                                     Page {subsection.page}
                                   </span>
-                                  <button
+                                  <a
+                                    href={`${pdfPath}book${section_id}.pdf#page=${subsection.page-1}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className={`flex items-center gap-2 px-4 py-2 rounded-lg ${colorClasses.bg} ${colorClasses.hover} text-white text-sm font-medium transition-colors duration-200`}
                                   >
                                     <ExternalLink className="w-4 h-4" />
                                     Reference
-                                  </button>
+                                  </a>
                                 </div>
                               </div>
                             ))}
