@@ -1,6 +1,5 @@
 .venv/
-Data/*.*
+*.json
 *.pdf
 *.svg
 __pycache__
-Data/
