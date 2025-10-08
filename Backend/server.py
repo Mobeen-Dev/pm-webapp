@@ -1,8 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
-
+from runner import main
 app = FastAPI()
 
 # CORS configuration (allow your frontend origin during dev)
@@ -21,174 +21,187 @@ app.add_middleware(
 
 # uvicorn server:app --reload
 
-@app.post("/data")
-async def get_data():
+
+async def get_data(request: Request):
+    body = await request.json()
+    query = body.get("query")
+    strict = body.get("strict", False)
     # Fake data from backend
+    return main(query, strict)
     return {
-        "pmbok": {
+        "PMBook": {
             "name": "PMBOK Guide",
             "icon": "BookOpen",  # Optional: Just a string identifier
             "color": "indigo",
             "sections": [
                 {
                     "id": 1,
-                    "number": "1",
-                    "title": "Introduction to Project Management",
-                    "count": 15,
+                    "number": "1.2",
+                    "title": "RELATIONSHIP OF THE PMBOK® GUIDE",
+                    "count": 1,
                     "subsections": [
-                        {"section": "1.1", "page": 12, "title": "What is a Project?"},
                         {
                             "section": "1.2",
-                            "page": 15,
-                            "title": "What is Project Management?",
-                        },
-                        {
-                            "section": "1.3",
-                            "page": 18,
-                            "title": "The Relationship Between Portfolio, Program, and Project Management",
-                        },
-                        {
-                            "section": "1.4",
-                            "page": 22,
-                            "title": "Project Management Office",
-                        },
-                        {
-                            "section": "1.5",
-                            "page": 25,
-                            "title": "Relationship Between Project Management, Operations Management, and Organizational Strategy",
-                        },
+                            "page": 2,
+                            "title": "1.2 RELATIONSHIP OF THE PMBOK® GUIDE",
+                        }
                     ],
                 },
                 {
                     "id": 2,
                     "number": "2",
-                    "title": "The Environment in Which Projects Operate",
-                    "count": 12,
+                    "title": "The Standard for Program Management",
+                    "count": 1,
                     "subsections": [
                         {
-                            "section": "2.1",
-                            "page": 38,
-                            "title": "Enterprise Environmental Factors",
-                        },
-                        {
-                            "section": "2.2",
-                            "page": 42,
-                            "title": "Organizational Process Assets",
-                        },
-                        {
-                            "section": "2.3",
-                            "page": 45,
-                            "title": "Organizational Systems",
-                        },
-                        {
-                            "section": "2.4",
-                            "page": 48,
-                            "title": "Organizational Culture and Style",
-                        },
+                            "section": "2",
+                            "page": 215,
+                            "title": "2 The Standard for Program Management – Fourth Edition and The Standard for Portfolio Management –",
+                        }
                     ],
                 },
                 {
                     "id": 3,
-                    "number": "3",
-                    "title": "The Role of the Project Manager",
-                    "count": 18,
+                    "number": "2.2",
+                    "title": "Chapter 2 Section 2",
+                    "count": 2,
                     "subsections": [
+                        {"section": "2.2.2", "page": 18, "title": "2.2.2 PROJECT TEAM"},
                         {
-                            "section": "3.1",
-                            "page": 52,
-                            "title": "Definition of a Project Manager",
-                        },
-                        {
-                            "section": "3.2",
-                            "page": 55,
-                            "title": "The Project Manager's Sphere of Influence",
-                        },
-                        {
-                            "section": "3.3",
-                            "page": 58,
-                            "title": "Project Manager Competences",
-                        },
-                        {
-                            "section": "3.4",
-                            "page": 62,
-                            "title": "Performing Integration",
-                        },
-                        {"section": "3.5", "page": 65, "title": "Leadership Skills"},
-                        {
-                            "section": "3.6",
-                            "page": 68,
-                            "title": "Technical Project Management Skills",
+                            "section": "2.2.4.4",
+                            "page": 23,
+                            "title": "2.2.4.4 Interpersonal",
                         },
                     ],
                 },
                 {
                     "id": 4,
-                    "number": "4",
-                    "title": "Project Integration Management",
-                    "count": 22,
+                    "number": "2.3",
+                    "title": "Chapter 2 Section 3",
+                    "count": 1,
                     "subsections": [
                         {
-                            "section": "4.1",
-                            "page": 75,
-                            "title": "Develop Project Charter",
-                        },
-                        {
-                            "section": "4.2",
-                            "page": 82,
-                            "title": "Develop Project Management Plan",
-                        },
-                        {
-                            "section": "4.3",
-                            "page": 88,
-                            "title": "Direct and Manage Project Work",
-                        },
-                        {
-                            "section": "4.4",
-                            "page": 94,
-                            "title": "Manage Project Knowledge",
-                        },
-                        {
-                            "section": "4.5",
-                            "page": 98,
-                            "title": "Monitor and Control Project Work",
-                        },
-                        {
-                            "section": "4.6",
-                            "page": 105,
-                            "title": "Perform Integrated Change Control",
-                        },
-                        {
-                            "section": "4.7",
-                            "page": 112,
-                            "title": "Close Project or Phase",
-                        },
+                            "section": "2.3.6",
+                            "page": 40,
+                            "title": "2.3.6 ALIGNING OF DELIVERY CADENCE,",
+                        }
                     ],
                 },
                 {
                     "id": 5,
-                    "number": "5",
-                    "title": "Project Scope Management",
-                    "count": 20,
+                    "number": "2.5",
+                    "title": "PROJECT WORK PERFORMANCE",
+                    "count": 3,
                     "subsections": [
                         {
-                            "section": "5.1",
-                            "page": 130,
-                            "title": "Plan Scope Management",
+                            "section": "2.5",
+                            "page": 61,
+                            "title": "2.5 PROJECT WORK PERFORMANCE",
                         },
+                        {"section": "2.5.1", "page": 62, "title": "2.5.1 PROJECT"},
                         {
-                            "section": "5.2",
-                            "page": 135,
-                            "title": "Collect Requirements",
+                            "section": "2.5.8",
+                            "page": 68,
+                            "title": "2.5.8 LEARNING THROUGHOUT THE",
                         },
-                        {"section": "5.3", "page": 142, "title": "Define Scope"},
-                        {"section": "5.4", "page": 148, "title": "Create WBS"},
-                        {"section": "5.5", "page": 155, "title": "Validate Scope"},
-                        {"section": "5.6", "page": 160, "title": "Control Scope"},
+                    ],
+                },
+                {
+                    "id": 6,
+                    "number": "2.8",
+                    "title": "Chapter 2 Section 8",
+                    "count": 1,
+                    "subsections": [
+                        {"section": "2.8.5.4", "page": 111, "title": "2.8.5.4 Risk"}
+                    ],
+                },
+                {
+                    "id": 7,
+                    "number": "3.4",
+                    "title": "Chapter 3 Section 4",
+                    "count": 1,
+                    "subsections": [
+                        {
+                            "section": "3.4.3.4",
+                            "page": 124,
+                            "title": "3.4.3.4 Implement Ongoing",
+                        }
+                    ],
+                },
+                {
+                    "id": 8,
+                    "number": "3.5",
+                    "title": "TAILORING THE PERFORMANCE",
+                    "count": 1,
+                    "subsections": [
+                        {
+                            "section": "3.5",
+                            "page": 125,
+                            "title": "3.5 TAILORING THE PERFORMANCE",
+                        }
+                    ],
+                },
+                {
+                    "id": 9,
+                    "number": "3.6",
+                    "title": "Chapter 3 Section 6",
+                    "count": 1,
+                    "subsections": [{"section": "3.6", "page": 40, "title": "3.6"}],
+                },
+                {
+                    "id": 10,
+                    "number": "4.1",
+                    "title": "Chapter 4 Section 1",
+                    "count": 1,
+                    "subsections": [{"section": "4.1", "page": 21, "title": "4.1"}],
+                },
+                {
+                    "id": 11,
+                    "number": "4.2",
+                    "title": "Chapter 4 Section 2",
+                    "count": 1,
+                    "subsections": [
+                        {
+                            "section": "4.2.6.2",
+                            "page": 144,
+                            "title": "4.2.6.2 Drexler/Sibbet Team Performance",
+                        }
+                    ],
+                },
+                {
+                    "id": 12,
+                    "number": "4.4",
+                    "title": "Chapter 4 Section 4",
+                    "count": 1,
+                    "subsections": [
+                        {"section": "4.4.3", "page": 155, "title": "4.4.3 MEETINGS AND"}
+                    ],
+                },
+                {
+                    "id": 13,
+                    "number": "4.5",
+                    "title": "METHODS APPLIED ACROSS",
+                    "count": 1,
+                    "subsections": [
+                        {
+                            "section": "4.5",
+                            "page": 158,
+                            "title": "4.5 METHODS APPLIED ACROSS",
+                        }
+                    ],
+                },
+                {
+                    "id": 14,
+                    "number": "4.6",
+                    "title": "Chapter 4 Section 6",
+                    "count": 1,
+                    "subsections": [
+                        {"section": "4.6.9", "page": 168, "title": "4.6.9 OTHER"}
                     ],
                 },
             ],
         },
-        "agile": {
+        "PRINCE2": {
             "name": "Agile Practices",
             "icon": "FileText",
             "color": "cyan",
@@ -296,7 +309,7 @@ async def get_data():
                 },
             ],
         },
-        "leadership": {
+        "ISO": {
             "name": "Leadership & Strategy",
             "icon": "BookOpen",
             "color": "purple",
@@ -441,4 +454,5 @@ async def get_data():
             ],
         },
     }
+    
 

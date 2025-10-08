@@ -1,4 +1,85 @@
-{
+import json
+import os
+import re
+import os
+import sys
+import pathlib
+import urllib.parse
+
+def get_book_file_url():
+    # Build absolute path from current working directory
+    file_path = os.path.abspath(os.path.join(os.getcwd(), "../public/book"))
+    
+    # Convert the absolute path to a file:// URL
+    file_url = pathlib.Path(file_path).as_uri()
+    
+    return file_url
+
+# Example usage:
+print(get_book_file_url())
+
+sys.exit()
+
+def clean_section_title(raw_title: str) -> str:
+    """
+    Clean and format section titles based on numbering pattern.
+
+    Rules:
+    1. Remove leading numeric section identifiers like "1.", "2.3", etc.
+    2. If title is number-only (e.g. "2.2.1"), convert to "Chapter 2 Section 2 Subsection 1".
+    3. If long text after number, keep the first meaningful part for readability.
+    """
+
+    title = raw_title.strip()
+
+    # --- CASE 3: Pure numeric sections like "2.2" or "2.2.1.3"
+    if re.fullmatch(r"[\d.]+", title):
+        parts = title.split(".")
+        labels = ["Chapter", "Section", "Subsection", "Sub-subsection", "Sub-sub-subsection"]
+        readable = " ".join(
+            f"{labels[i] if i < len(labels) else f'Level{i+1}'} {p}"
+            for i, p in enumerate(parts)
+        )
+        return readable
+
+    # --- Remove starting numbering (CASE 1 & 2)
+    cleaned = re.sub(r"^[\d.]+\s+", "", title).strip()
+
+    # --- If it’s a long name with “–” or “and” etc, shorten it (CASE 2)
+    # Keep text before first "–" or before "and"
+    if "–" in cleaned:
+        cleaned = cleaned.split("–")[0].strip()
+    elif "—" in cleaned:
+        cleaned = cleaned.split("—")[0].strip()
+    elif " and " in cleaned.lower():
+        cleaned = cleaned.split(" and ")[0].strip()
+
+    # Capitalize first letter properly if needed
+    cleaned = cleaned[0].upper() + cleaned[1:] if cleaned else cleaned
+
+    return cleaned
+
+# Example input data
+hierarchy = {
+    "_book1": {
+        "1.2": ["1.2"],
+        "2": ["2"],
+        "2.2": ["2.2.2", "2.2.4.4"],
+        "2.3": ["2.3.6"],
+        "2.5": ["2.5", "2.5.1", "2.5.8"],
+        "2.8": ["2.8.5.4"],
+        "3.4": ["3.4.3.4"],
+        "3.5": ["3.5"],
+        "3.6": ["3.6"],
+        "4.1": ["4.1"],
+        "4.2": ["4.2.6.2"],
+        "4.4": ["4.4.3"],
+        "4.5": ["4.5"],
+        "4.6": ["4.6.9"],
+    }
+}
+
+book_data = {
     "book1": [
         {
             "section_id": "1.2",
@@ -57,124 +138,65 @@
             "PageNumber": 158,
         },
         {"section_id": "4.6.9", "startText": "4.6.9 OTHER", "PageNumber": 168},
-    ],
-    "_book1": {
-        "1.2": ["1.2"],
-        "2": ["2"],
-        "2.2": ["2.2.2", "2.2.4.4"],
-        "2.3": ["2.3.6"],
-        "2.5": ["2.5", "2.5.1", "2.5.8"],
-        "2.8": ["2.8.5.4"],
-        "3.4": ["3.4.3.4"],
-        "3.5": ["3.5"],
-        "3.6": ["3.6"],
-        "4.1": ["4.1"],
-        "4.2": ["4.2.6.2"],
-        "4.4": ["4.4.3"],
-        "4.5": ["4.5"],
-        "4.6": ["4.6.9"],
-    },
-    "book2": [
-        {"section_id": "1.1.1.2", "startText": "1.1.1.2", "PageNumber": 22},
-        {"section_id": "1.3", "startText": "1.3", "PageNumber": 4},
-        {"section_id": "10.4.2", "startText": "10.4.2", "PageNumber": 196},
-        {"section_id": "10.7", "startText": "10.7", "PageNumber": 6},
-        {"section_id": "11.2.3", "startText": "11.2.3", "PageNumber": 209},
-        {"section_id": "11.2.4", "startText": "11.2.4", "PageNumber": 211},
-        {"section_id": "11.4.2", "startText": "11.4.2", "PageNumber": 221},
-        {"section_id": "11.6", "startText": "11.6", "PageNumber": 6},
-        {"section_id": "13.5.1", "startText": "13.5.1", "PageNumber": 244},
-        {
-            "section_id": "1438.5",
-            "startText": "Management products to support the",
-            "PageNumber": 5,
-        },
-        {"section_id": "17.2", "startText": "17.2", "PageNumber": 7},
-        {"section_id": "19.7", "startText": "19.7", "PageNumber": 7},
-        {"section_id": "2.2", "startText": "2.2", "PageNumber": 4},
-        {"section_id": "2.4", "startText": "2.4", "PageNumber": 4},
-        {"section_id": "2.7", "startText": "2.7", "PageNumber": 4},
-        {"section_id": "20111.3.2.6", "startText": "Retrospectives", "PageNumber": 22},
-        {"section_id": "22113.3", "startText": "Context", "PageNumber": 4},
-        {
-            "section_id": "22713.7",
-            "startText": "Application of the practices to this process",
-            "PageNumber": 6,
-        },
-        {
-            "section_id": "23714.7",
-            "startText": "Application of the practices to this process",
-            "PageNumber": 6,
-        },
-        {"section_id": "3.3.1", "startText": "3.3.1", "PageNumber": 59},
-        {"section_id": "3.3.2", "startText": "3.3.2", "PageNumber": 59},
-        {"section_id": "3.4", "startText": "3.4", "PageNumber": 4},
-        {"section_id": "3.5.2", "startText": "3.5.2", "PageNumber": 66},
-        {"section_id": "303", "startText": "303", "PageNumber": 322},
-        {"section_id": "310", "startText": "310", "PageNumber": 167},
-        {"section_id": "311", "startText": "311", "PageNumber": 330},
-        {"section_id": "312", "startText": "312", "PageNumber": 331},
-        {"section_id": "363.2.2", "startText": "Stakeholders", "PageNumber": 12},
-        {
-            "section_id": "463.5.1",
-            "startText": "People and PRINCE2 principles",
-            "PageNumber": 65,
-        },
-        {"section_id": "5.2.2", "startText": "5.2.2", "PageNumber": 78},
-        {"section_id": "5.4.2", "startText": "5.4.2", "PageNumber": 85},
-        {"section_id": "6.2.4.4", "startText": "6.2.4.4", "PageNumber": 94},
-        {"section_id": "6.2.4.7", "startText": "6.2.4.7", "PageNumber": 101},
-        {"section_id": "6.4.2", "startText": "6.4.2", "PageNumber": 108},
-        {"section_id": "655.3.2.2", "startText": "Multi-case model", "PageNumber": 84},
-        {"section_id": "7.1.1", "startText": "7.1.1", "PageNumber": 117},
-        {"section_id": "8.7", "startText": "8.7", "PageNumber": 5},
-        {"section_id": "916.4.4", "startText": "Sustainability", "PageNumber": 13},
-    ],
-    "_book2": {
-        "1.1": ["1.1.1.2"],
-        "1.3": ["1.3"],
-        "10.4": ["10.4.2"],
-        "10.7": ["10.7"],
-        "11.2": ["11.2.3", "11.2.4"],
-        "11.4": ["11.4.2"],
-        "11.6": ["11.6"],
-        "13.5": ["13.5.1"],
-        "1438.5": ["1438.5"],
-        "17.2": ["17.2"],
-        "19.7": ["19.7"],
-        "2.2": ["2.2"],
-        "2.4": ["2.4"],
-        "2.7": ["2.7"],
-        "20111.3": ["20111.3.2.6"],
-        "22113.3": ["22113.3"],
-        "22713.7": ["22713.7"],
-        "23714.7": ["23714.7"],
-        "3.3": ["3.3.1", "3.3.2"],
-        "3.4": ["3.4"],
-        "3.5": ["3.5.2"],
-        "303": ["303"],
-        "310": ["310"],
-        "311": ["311"],
-        "312": ["312"],
-        "363.2": ["363.2.2"],
-        "463.5": ["463.5.1"],
-        "5.2": ["5.2.2"],
-        "5.4": ["5.4.2"],
-        "6.2": ["6.2.4.4", "6.2.4.7"],
-        "6.4": ["6.4.2"],
-        "655.3": ["655.3.2.2"],
-        "7.1": ["7.1.1"],
-        "8.7": ["8.7"],
-        "916.4": ["916.4.4"],
-    },
-    "book3": [
-        {"section_id": "4.1", "startText": "4.1", "PageNumber": 3},
-        {"section_id": "6", "startText": "6", "PageNumber": 3},
-    ],
-    "_book3": {"4.1": ["4.1"], "6": ["6"]},
-    "book4": [
-        {"section_id": "3", "startText": "3", "PageNumber": 3},
-        {"section_id": "6.6.2", "startText": "6.6.2", "PageNumber": 3},
-    ],
-    "_book4": {"3": ["3"], "6.6": ["6.6.2"]},
+    ]
 }
+
+def build_amt_structure(hierarchy_dict, book_sections):
+    amt_sections = []
+    section_lookup = {item["section_id"]: item for item in book_sections}
+
+    for idx, (main_section, sub_ids) in enumerate(hierarchy_dict.items(), start=1):
+        main_data = section_lookup.get(main_section)
+        title = main_data["startText"] if main_data else main_section
+        page = main_data["PageNumber"] if main_data else None
+
+        subsections = []
+
+        # CASE 1: Single self-reference
+        if len(sub_ids) == 1 and sub_ids[0] == main_section:
+            if main_data:
+                subsections.append({
+                    "section": main_section,
+                    "page": page,
+                    "title": title
+                })
+        else:
+            # CASE 2: Real child sections
+            for sid in sub_ids:
+                sub_data = section_lookup.get(sid)
+                if sub_data:
+                    subsections.append({
+                        "section": sid,
+                        "page": sub_data["PageNumber"],
+                        "title": sub_data["startText"]
+                    })
+                else:
+                    # Still include child reference if not in section_lookup (to prevent zero subsections)
+                    subsections.append({
+                        "section": sid,
+                        "page": None,
+                        "title": sid
+                    })
+
+        amt_sections.append({
+            "id": idx,
+            "number": main_section,
+            "title": clean_section_title(title),
+            "count": len(subsections),
+            "subsections": subsections
+        })
+
+    return amt_sections
+
+
+# Build and save
+result = build_amt_structure(hierarchy["_book1"], book_data["book1"])
+
+# os.makedirs("final_index", exist_ok=True)
+with open("book1_amt.json", "w", encoding="utf-8") as f:
+    json.dump({"sections": result}, f, ensure_ascii=False, indent=2)
+    
+
+print("✅ AMT structured JSON saved → final_index/book1_amt.json")
+# file:///C:/ReactApps/pm-webapp/public/book3.pdf
+# file:///C:/ReactApps/pm-webapp/public/book3.pdf
