@@ -3,7 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 from runner import main
-app = FastAPI()
+from routes import auth_routes
+
+app = FastAPI(title="PM Codex API")
+app.include_router(auth_routes.router)
 
 # CORS configuration (allow your frontend origin during dev)
 origins = [
