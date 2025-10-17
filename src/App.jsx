@@ -16,6 +16,7 @@ import BookComparison from "./components/BookComparison";
 import ExpandableTabsPage from "./components/Search";
 import ExpandableTabsPage2 from "./components/Search2";
 import AnalyticsDashboard from "./components/Analytics";
+import Auth from "./components/Auth";
 
 
 // import BookComparison from "../public/book.pdf";
@@ -79,6 +80,7 @@ const App = () => {
               element={<PdfViewer />}
             />
             
+            <Route path="/auth" element={<Auth />} />
             <Route path="/about" element={<About />} />
             <Route path="/pdf" element={<PdfViewer />} />
 
