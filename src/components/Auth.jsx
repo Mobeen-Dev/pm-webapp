@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, ArrowLeft } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const MaterialButton = ({ children, variant = 'filled', fullWidth, onClick, disabled }) => {
   const baseClasses = "px-6 py-3 rounded-full font-medium transition-all duration-200 flex items-center justify-center gap-2";
@@ -59,6 +60,7 @@ const MaterialInput = ({ icon: Icon, type = 'text', placeholder, value, onChange
 };
 
 const LoginPage = ({ onNavigate }) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
@@ -91,7 +93,8 @@ const LoginPage = ({ onNavigate }) => {
       
       if (response.ok) {
         console.log('Login successful:', data);
-        alert('Login successful!');
+        // alert('Login successful!');
+        navigate("/");
       } else {
         setErrors({ general: data.message || 'Login failed' });
       }
