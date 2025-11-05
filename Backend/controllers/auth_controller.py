@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from schemas.user import UserCreate, UserLogin
 from utils.jwt_handler import create_access_token
+from utils.email_reset import generate_reset_token, send_reset_email
 from passlib.context import CryptContext
 
 # Mock "database"
@@ -49,4 +50,16 @@ def forgot_password(email: str):
         raise HTTPException(status_code=404, detail="User not found")
 
     # Normally you'd send email here
+    return {"message": f"Password reset link sent to {email}"}
+
+def forgot_password(email: str):
+    user = next((u for u in mock_users if u["email"] == email), None)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    reset_token = generate_reset_token(email)
+
+    send_reset_email(email, reset_token)
+
     return {"message": f"Password reset link sent to {email}"}
