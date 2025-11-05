@@ -20,3 +20,6 @@ class TokenResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+    
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
